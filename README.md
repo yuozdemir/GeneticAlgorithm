@@ -1,1 +1,1 @@
-# Linear-Antenna-Array-Optimization-with-GA
+# Linear Antenna Array Optimization with Genetic Algorithm
