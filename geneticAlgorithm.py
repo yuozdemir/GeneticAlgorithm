@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class Genetic:
-    def __init__(self, n_bits_, n_iter_, n_pop_, r_cross_, r_mut_, n_, b_, d_, w_):
+    def __init__(self, n_bits_, n_iter_, n_pop_, r_cross_, r_mut_, n_, b_, d_, w_, t_):
         self.iterations_timer = 0
         self.phi = np.linspace(0, 2 * np.pi, 1000)
         self.phi_180 = [self.phi[i] * (180 / np.pi) for i in range(len(self.phi))]
@@ -18,6 +18,7 @@ class Genetic:
         self.b_bounds = b_
         self.d_bounds = d_
         self.w_bounds = w_
+        self.topology = t_
 
         self.pop = []
         self.Next_Generation = []
@@ -61,9 +62,17 @@ class Genetic:
 
     def array_factor(self, b_, d_, w_, m_=-60):
         s = 0
-        for i in range(self.n):
-            psi = (2 * np.pi) * (d_[i]) * (np.cos(self.phi) + b_[i])
-            s = s + w_[i] * np.exp(1j * psi * i)
+
+        if self.topology == "Lineer":
+            for i in range(self.n):
+                psi = (2 * np.pi) * (d_[i]) * (np.cos(self.phi) + b_[i])
+                s = s + w_[i] * np.exp(1j * psi * i)
+
+        if self.topology == "Dairesel":
+            for i in range(self.n):
+                psi = (2 * np.pi) * (d_[i]) * ((np.cos(self.phi) * np.sin(np.pi / 2)) + b_[i])
+                s = s + w_[i] * np.exp(1j * psi * i)
+
         g = np.abs(s) ** 2
         dbi = 10 * np.log10(g / np.max(g))
         return np.clip(dbi, m_, None)
@@ -271,6 +280,7 @@ N = 12
 b_bounds = [90.0, 90.0]
 d_bounds = [0.5, 0.5]
 w_bounds = [0.0, 1.0]
+topology = "Lineer"
 
-Go = Genetic(n_bits, n_iter, n_pop, r_cross, r_mut, N, b_bounds, d_bounds, w_bounds)
+Go = Genetic(n_bits, n_iter, n_pop, r_cross, r_mut, N, b_bounds, d_bounds, w_bounds, topology)
 Go.genetic_algorithm()
