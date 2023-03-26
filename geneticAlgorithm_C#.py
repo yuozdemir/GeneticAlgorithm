@@ -5,7 +5,7 @@ import sys
 
 
 class Genetic:
-    def __init__(self, n_bits_, n_iter_, n_pop_, r_cross_, r_mut_, n_, b_, d_, w_, database_):
+    def __init__(self, n_bits_, n_iter_, n_pop_, r_cross_, r_mut_, n_, b_, d_, w_, t_, database_):
         self.iterations_timer = 0
         self.phi = np.linspace(0, 2 * np.pi, 1000)
         self.phi_180 = [self.phi[i] * (180 / np.pi) for i in range(len(self.phi))]
@@ -19,6 +19,7 @@ class Genetic:
         self.b_bounds = b_
         self.d_bounds = d_
         self.w_bounds = w_
+        self.topology = t_
 
         self.pop = []
         self.Next_Generation = []
@@ -63,9 +64,17 @@ class Genetic:
 
     def array_factor(self, b_, d_, w_, m_=-60):
         s = 0
-        for i in range(self.n):
-            psi = (2 * np.pi) * (d_[i]) * (np.cos(self.phi) + b_[i])
-            s = s + w_[i] * np.exp(1j * psi * i)
+
+        if self.topology == "Lineer":
+            for i in range(self.n):
+                psi = (2 * np.pi) * (d_[i]) * (np.cos(self.phi) + b_[i])
+                s = s + w_[i] * np.exp(1j * psi * i)
+
+        if self.topology == "Dairesel":
+            for i in range(self.n):
+                psi = (2 * np.pi) * (d_[i]) * ((np.cos(self.phi) * np.sin(np.pi / 2)) + b_[i])
+                s = s + w_[i] * np.exp(1j * psi * i)
+
         g = np.abs(s) ** 2
         dbi = 10 * np.log10(g / np.max(g))
         return np.clip(dbi, m_, None)
@@ -241,28 +250,30 @@ class Genetic:
         page = workbook.add_worksheet()
 
         page.write(0, 1, 'Parameters')
-        page.write(1, 0, 'n_iter')
-        page.write(2, 0, 'n_bits')
-        page.write(3, 0, 'n_pop')
-        page.write(4, 0, 'r_cross')
-        page.write(5, 0, 'r_mut')
-        page.write(6, 0, 'N')
-        page.write(7, 0, 'b_bounds')
-        page.write(8, 0, 'd_bounds')
-        page.write(9, 0, 'w_bounds')
+        page.write(1, 0, 'topology')
+        page.write(2, 0, 'n_iter')
+        page.write(3, 0, 'n_bits')
+        page.write(4, 0, 'n_pop')
+        page.write(5, 0, 'r_cross')
+        page.write(6, 0, 'r_mut')
+        page.write(7, 0, 'N')
+        page.write(8, 0, 'b_bounds')
+        page.write(9, 0, 'd_bounds')
+        page.write(10, 0, 'w_bounds')
 
-        page.write(1, 1, self.n_iter)
-        page.write(2, 1, self.n_bits)
-        page.write(3, 1, self.n_pop)
-        page.write(4, 1, self.r_cross)
-        page.write(5, 1, self.r_mut)
-        page.write(6, 1, self.n)
-        page.write(7, 1, self.b_bounds[0])
-        page.write(7, 2, self.b_bounds[1])
-        page.write(8, 1, self.d_bounds[0])
-        page.write(8, 2, self.d_bounds[1])
-        page.write(9, 1, self.w_bounds[0])
-        page.write(9, 2, self.w_bounds[1])
+        page.write(1, 1, self.topology)
+        page.write(2, 1, self.n_iter)
+        page.write(3, 1, self.n_bits)
+        page.write(4, 1, self.n_pop)
+        page.write(5, 1, self.r_cross)
+        page.write(6, 1, self.r_mut)
+        page.write(7, 1, self.n)
+        page.write(8, 1, self.b_bounds[0])
+        page.write(8, 2, self.b_bounds[1])
+        page.write(9, 1, self.d_bounds[0])
+        page.write(9, 2, self.d_bounds[1])
+        page.write(10, 1, self.w_bounds[0])
+        page.write(10, 2, self.w_bounds[1])
 
         page.write(0, 3, 'B Bounds')
         page.write(0, 4, 'D Bounds')
@@ -304,8 +315,9 @@ N = int(sys.argv[5])
 b_bounds = [float(sys.argv[6]), float(sys.argv[7])]
 d_bounds = [float(sys.argv[8]), float(sys.argv[9])]
 w_bounds = [float(sys.argv[10]), float(sys.argv[11])]
+topology = sys.argv[12]
 
-dataBase = sys.argv[12]
+dataBase = sys.argv[13]
 
-Go = Genetic(n_bits, n_iter, n_pop, r_cross, r_mut, N, b_bounds, d_bounds, w_bounds, dataBase)
+Go = Genetic(n_bits, n_iter, n_pop, r_cross, r_mut, N, b_bounds, d_bounds, w_bounds, topology, dataBase)
 Go.genetic_algorithm()
